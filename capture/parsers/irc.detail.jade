@@ -1,0 +1,5 @@
+if (session.irc)
+  div.sessionDetailMeta.bold IRC
+  dl.sessionDetailMeta
+    +arrayList(session.irc, "nick", "Nicks", "irc.nick")
+    +arrayList(session.irc, "channel", "Channels", "irc.channel")

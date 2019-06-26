@@ -1,0 +1,10 @@
+if (session.smb)
+  div.sessionDetailMeta.bold SMB
+  dl.sessionDetailMeta(suffix="smb")
+    +arrayList(session.smb, "user", "Users", "smb.user")
+    +arrayList(session.smb, "host", "Hosts", "host.smb")
+    +arrayList(session.smb, "domain", "Domains", "smb.domain")
+    +arrayList(session.smb, "share", "Shares", "smb.share")
+    +arrayList(session.smb, "filename", "Files", "smb.fn")
+    +arrayList(session.smb, "os", "OS", "smb.os")
+    +arrayList(session.smb, "version", "Version", "smb.ver")

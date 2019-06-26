@@ -1,0 +1,6 @@
+cc_binary(
+	name = "getfunc",
+	srcs = ['getfunction.c'],
+	deps = ['/home/dps/build64_release/TEST/function.so']
+)
+

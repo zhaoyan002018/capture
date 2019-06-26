@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base href="{{ path }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+    <title>{{ titleConfig }}</title>
+    <link rel="stylesheet" href="{{ themeUrl }}">
+    <script src="../mock/menu.js"></script>
+    <script src="../mock/serverInfo.js"></script>
+    <script src="../mock/shortcutKey.js"></script>
+    <script>
+      const VENDOR_CONFIG ={
+        DPS_TITLE_CONFIG: '{{titleConfig}}',
+        DPS_DEMO_MODE: {{ demoMode }},
+        DPS_DEV_MODE: {{ devMode }},
+        DPS_VERSION: '{{ version }}',
+        DPS_PATH: '{{ path }}',
+        DPS_MULTIVIEWER: {{ multiViewer }},
+        DPS_HUNTWARN: {{ huntWarn }},
+        DPS_HUNTLIMIT: {{ huntLimit }},
+        DPS_SHORT_COMPANY: '{{shortCompany}}',
+        DPS_WEBSITE: '{{webSite}}',
+        DPS_COMPANY: '{{company}}',
+        DPS_WELCOME: '{{welcome}}',
+        DPS_SHOWLOGO: {{ showLogo }}
+      }
+    </script>
+  </head>
+  <body class="{{ theme }}">
+    <!--vue-ssr-outlet-->
+  </body>
+</html>

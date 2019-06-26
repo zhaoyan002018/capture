@@ -1,0 +1,58 @@
+
+/* spigraph page and navbar styles ---------- */
+.spigraph-page {
+  height: 100%;
+}
+.worldmap{
+  height: calc(100% - 180px);
+}
+.spigraph-page form.spigraph-form {
+  z-index: 4;
+  position: fixed;
+  top: 110px;
+  width:100%;
+  background-color: var(--color-quaternary-lightest);
+
+  -webkit-box-shadow: 0 0 16px -2px black;
+  -moz-box-shadow: 0 0 16px -2px black;
+  box-shadow: 0 0 16px -2px black;
+}
+.spigraph-page form.spigraph-form .form-inline {
+  flex-flow: row nowrap;
+}
+.spigraph-page form.spigraph-form select.form-control {
+  -webkit-appearance: none;
+}
+.spigraph-page form.spigraph-form .form-inline .records-display  {
+  line-height: 35px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* field typeahead */
+.spigraph-page form.spigraph-form .field-typeahead {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* spigraph content styles ------------------- */
+.spigraph-page .spigraph-content {
+  padding-top: 120px;
+  height: 100%;
+}
+
+.spigraph-page .spi-graph-item .spi-bucket sup {
+  margin-left: -12px;
+}
+
+/* main graph/map */
+.spigraph-page .spigraph-content .well {
+  -webkit-box-shadow: 0 4px 16px -2px black;
+  -moz-box-shadow: 0 4px 16px -2px black;
+  box-shadow: 0 4px 16px -2px black;
+}
+
+/* stripes */
+.spigraph-page .spigraph-content .spi-graph-item:nth-child(odd) {
+  background-color: var(--color-quaternary-lightest);
+}

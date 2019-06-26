@@ -1,0 +1,2548 @@
+<template>
+
+  <!-- settings content -->
+  <div class="settings-page">
+
+    <!-- sub navbar -->
+    <div class="sub-navbar">
+      <span class="sub-navbar-title">
+        <span class="fa-stack">
+          <span class="fa fa-cogs fa-stack-1x"></span>
+          <span class="fa fa-square-o fa-stack-2x"></span>
+        </span>&nbsp;
+        <span>
+          {{$t('setting')}}
+          <span v-if="displayName">
+            for {{ displayName }}
+          </span>
+        </span>
+      </span>
+      <div class="pull-right small toast-container">
+        <moloch-toast
+          class="mr-1"
+          :message="msg"
+          :type="msgType"
+          :done="messageDone">
+        </moloch-toast>
+      </div>
+    </div> <!-- /sub navbar -->
+
+    <!-- loading overlay -->
+    <moloch-loading
+      v-if="loading && !error">
+    </moloch-loading> <!-- /loading overlay -->
+
+    <!-- page error -->
+    <moloch-error
+      v-if="error"
+      :message-html="error"
+      class="settings-error">
+    </moloch-error> <!-- /page error -->
+
+    <!-- content -->
+    <div class="settings-content row"
+         v-if="!loading && !error">
+
+      <!-- navigation -->
+      <div class="col-xl-2 col-lg-3 col-md-3 col-sm-4"
+           role="tablist"
+           aria-orientation="vertical">
+        <div class="nav flex-column nav-pills">
+          <a class="nav-link cursor-pointer"
+                 @click="openView('general')"
+                 :class="{'active':visibleTab === 'general'}">
+            <span class="fa fa-fw fa-cog">
+            </span>&nbsp;
+          {{$t('General')}}
+        </a>
+          <a class="nav-link cursor-pointer"
+             @click="openView('views')"
+             :class="{'active':visibleTab === 'views'}">
+            <span class="fa fa-fw fa-eye">
+            </span>&nbsp;
+            {{$t('common.view')}}
+          </a>
+          <a class="nav-link cursor-pointer"
+             @click="openView('cron')"
+             :class="{'active':visibleTab === 'cron'}">
+            <span class="fa fa-fw fa-search">
+            </span>&nbsp;
+            {{$t('Cron Queries')}}
+          </a>
+          <a class="nav-link cursor-pointer"
+             @click="openView('theme')"
+             :class="{'active':visibleTab === 'theme'}">
+            <span class="fa fa-fw fa-paint-brush">
+            </span>&nbsp;
+            {{$t('Themes')}}
+          </a>
+          <a v-if="!multiviewer"
+             class="nav-link cursor-pointer"
+             @click="openView('password')"
+             :class="{'active':visibleTab === 'password'}">
+            <span class="fa fa-fw fa-lock">
+            </span>&nbsp;
+            {{$t('Password')}}
+          </a>
+        </div>
+      </div> <!-- /navigation -->
+
+      <div class="col">
+
+        <!-- general settings -->
+        <form class="form-horizontal"
+              v-if="visibleTab === 'general'"
+              id="general">
+
+          <h3>{{$t('General')}}</h3>
+
+          <hr>
+
+          <!-- timezone -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Timezone Format')}}
+            </label>
+            <div class="col-sm-9">
+              <div class="btn-group">
+                <b-form-group>
+                  <b-form-radio-group
+                    size="sm"
+                    buttons
+                    @change="updateTime"
+                    v-model="settings.timezone">
+                    <b-radio value="local"
+                             v-b-tooltip.hover
+                             class="btn-radio">
+                      Local
+                    </b-radio>
+                    <b-radio value="localtz"
+                             v-b-tooltip.hover
+                             class="btn-radio">
+                      Local + Timezone
+                    </b-radio>
+                    <b-radio value="gmt"
+                             v-b-tooltip.hover
+                             class="btn-radio">
+                      GMT
+                    </b-radio>
+                  </b-form-radio-group>
+                </b-form-group>
+              </div>
+              <label class="ml-4 font-weight-bold text-theme-primary">
+                {{ date | timezoneDateString(settings.timezone, 'YYYY/MM/DD HH:mm:ss z') }}
+              </label>
+            </div>
+          </div> <!-- /timezone -->
+
+          <!-- session detail format -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Session Detail Format')}}
+            </label>
+            <div class="col-sm-9">
+              <b-form-group>
+                <b-form-radio-group
+                  size="sm"
+                  buttons
+                  @change="updateSessionDetailFormat"
+                  v-model="settings.detailFormat">
+                  <b-radio value="last"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    {{$t('Last Used')}}
+                  </b-radio>
+                  <b-radio value="natural"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    {{$t('sessions.sdnatural')}}
+                  </b-radio>
+                  <b-radio value="ascii"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    ASCII
+                  </b-radio>
+                  <b-radio value="utf8"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    UTF-8
+                  </b-radio>
+                  <b-radio value="hex"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    Hex
+                  </b-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </div>
+          </div> <!-- /session detail format -->
+
+          <!-- number of packets -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Number of Packets')}}
+            </label>
+            <div class="col-sm-9">
+              <b-form-group>
+                <b-form-radio-group
+                  size="sm"
+                  buttons
+                  @change="updateNumberOfPackets"
+                  v-model="settings.numPackets">
+                  <b-radio value="last"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    {{$t('Last Used')}}
+                  </b-radio>
+                  <b-radio value="50"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    50
+                  </b-radio>
+                  <b-radio value="200"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    200
+                  </b-radio>
+                  <b-radio value="500"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    500
+                  </b-radio>
+                  <b-radio value="1000"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    1,000
+                  </b-radio>
+                  <b-radio value="2000"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    2,000
+                  </b-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </div>
+          </div> <!-- /number of packets -->
+
+          <!-- show packet timestamp -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Show Packet Timestamps')}}
+            </label>
+            <div class="col-sm-9">
+              <b-form-group>
+                <b-form-radio-group
+                  size="sm"
+                  buttons
+                  @change="updateShowPacketTimestamps"
+                  v-model="settings.showTimestamps">
+                  <b-radio value="last"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    {{$t('Last Used')}}
+                  </b-radio>
+                  <b-radio value="on"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    On
+                  </b-radio>
+                  <b-radio value="off"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    Off
+                  </b-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </div>
+          </div> <!-- /show packet timestamp -->
+
+          <!-- issue query on initial page load -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Issue Query on Page Load')}}
+            </label>
+            <div class="col-sm-9">
+              <b-form-group>
+                <b-form-radio-group
+                  size="sm"
+                  buttons
+                  @change="updateQueryOnPageLoad"
+                  v-model="settings.manualQuery">
+                  <b-radio value="false"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    Yes
+                  </b-radio>
+                  <b-radio value="true"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    No
+                  </b-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </div>
+          </div> <!-- /issue query on initial page load -->
+
+          <!-- session sort -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Sort Sessions By')}}
+            </label>
+            <div class="col-sm-6">
+              <select class="form-control form-control-sm"
+                      v-model="settings.sortColumn"
+                      @change="update">
+                <option value="last">Last Used</option>
+                <option v-for="field in columns"
+                        :key="field.dbField"
+                        v-if="field && !field.unsortable"
+                        :value="field.dbField">
+                  {{ field.friendlyName }}
+                </option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <b-form-group>
+                <b-form-radio-group
+                  v-if="settings.sortColumn !== 'last'"
+                  size="sm"
+                  buttons
+                  @change="updateSortDirection"
+                  v-model="settings.sortDirection">
+                  <b-radio value="asc"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    {{$t('common.asc')}}
+                  </b-radio>
+                  <b-radio value="desc"
+                           v-b-tooltip.hover
+                           class="btn-radio">
+                    {{$t('common.desc')}}
+                  </b-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </div>
+          </div> <!-- /session sort -->
+
+          <!-- default spi graph -->
+          <div v-if="fields && settings.spiGraph"
+               class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Default SPI Graph')}}
+            </label>
+            <div class="col-sm-6">
+              <moloch-field-typeahead
+                :fields="fields"
+                query-param="field"
+                :initial-value="spiGraphTypeahead"
+                @fieldSelected="spiGraphFieldSelected">
+              </moloch-field-typeahead>
+            </div>
+            <div class="col-sm-3">
+              <h4 v-if="spiGraphField">
+                <label class="badge badge-info cursor-help"
+                       v-b-tooltip.hover
+                       :title="spiGraphField.help">
+                  {{ spiGraphTypeahead || 'unknown field' }}
+                </label>
+              </h4>
+            </div>
+          </div> <!-- /default spi graph -->
+
+          <!-- connections src field -->
+          <div v-if="fields && settings.connSrcField"
+               class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Connections Src')}}
+            </label>
+            <div class="col-sm-6">
+              <moloch-field-typeahead
+                :fields="fields"
+                query-param="field"
+                :initial-value="connSrcFieldTypeahead"
+                @fieldSelected="connSrcFieldSelected">
+              </moloch-field-typeahead>
+            </div>
+            <div class="col-sm-3">
+              <h4 v-if="connSrcField">
+                <label class="badge badge-info cursor-help"
+                       v-b-tooltip.hover
+                       :title="connSrcField.help">
+                  {{ connSrcFieldTypeahead || 'unknown field' }}
+                </label>
+              </h4>
+            </div>
+          </div> <!-- /connections src field -->
+
+          <!-- connections dst field -->
+          <div v-if="fields && settings.connDstField"
+               class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Connections Dst')}}
+            </label>
+            <div class="col-sm-6">
+              <moloch-field-typeahead
+                :fields="fieldsPlus"
+                query-param="field"
+                :initial-value="connDstFieldTypeahead"
+                @fieldSelected="connDstFieldSelected">
+              </moloch-field-typeahead>
+            </div>
+            <div class="col-sm-3">
+              <h4 v-if="connDstField">
+                <label class="badge badge-info cursor-help"
+                       v-b-tooltip.hover
+                       :title="connDstField.help">
+                  {{ connDstFieldTypeahead || 'unknown field' }}
+                </label>
+              </h4>
+            </div>
+          </div> <!-- /connections dst field -->
+
+        </form> <!-- / general settings -->
+
+        <!-- view settings -->
+        <form v-if="visibleTab === 'views'"
+              id="views"
+              class="form-horizontal">
+
+          <h3>{{$t('settingViews')}}</h3>
+
+          <p>
+            {{$t('viewdescribe')}}
+          </p>
+
+          <hr>
+
+          <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+              <th>共享</th>
+              <th>视图名</th>
+              <th>表达式</th>
+              <th width="30%">会话列</th>
+              <th>会话排序</th>
+              <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- views -->
+            <tr v-for="(item, key) in views"
+                @keyup.enter="updateView(key)"
+                @keyup.esc="cancelViewChange(key)"
+                :key="key">
+              <td>
+                <input type="checkbox"
+                       v-model="item.shared"
+                       @change="toggleShared(item)"
+                       class="form-check mt-2"
+                       :disabled="!user.createEnabled && item.user && item.user !== user.userId"
+                />
+              </td>
+              <td>
+                <input type="text"
+                       maxlength="20"
+                       v-model="item.name"
+                       @input="viewChanged(key)"
+                       class="form-control form-control-sm"
+                       :disabled="!user.createEnabled && item.user && item.user !== user.userId"
+                />
+              </td>
+              <td>
+                <input type="text"
+                       v-model="item.expression"
+                       @input="viewChanged(key)"
+                       class="form-control form-control-sm"
+                       :disabled="!user.createEnabled && item.user && item.user !== user.userId"
+                />
+              </td>
+              <td>
+                  <span v-if="item.sessionsColConfig">
+                    <label class="badge badge-secondary mr-1 mb-0 help-cursor"
+                           v-if="col && fieldsMap[col]"
+                           v-for="col in item.sessionsColConfig.visibleHeaders"
+                           v-b-tooltip.hover
+                           :title="fieldsMap[col].help"
+                           :key="col">
+                      {{ fieldsMap[col].friendlyName }}
+                    </label>
+                  </span>
+              </td>
+              <td>
+                  <span v-if="item.sessionsColConfig">
+                    <label class="badge badge-secondary mr-1 help-cursor"
+                           :title="fieldsMap[order[0]].help"
+                           v-for="order in item.sessionsColConfig.order"
+                           v-if="fieldsMap[order[0]]"
+                           v-b-tooltip.hover
+                           :key="order[0]">
+                      {{ fieldsMap[order[0]].friendlyName }}&nbsp;
+                      ({{ order[1] }})
+                    </label>
+                  </span>
+              </td>
+              <td>
+                <div v-if="user.createEnabled || item.user === user.userId || !item.user">
+                  <div class="btn-group btn-group-sm pull-right"
+                       v-if="item.changed">
+                    <button type="button"
+                            v-b-tooltip.hover
+                            @click="updateView(key)"
+                            title="保存视图"
+                            class="btn btn-theme-tertiary">
+                        <span class="fa fa-save">
+                        </span>
+                    </button>
+                    <button type="button"
+                            v-b-tooltip.hover
+                            class="btn btn-warning"
+                            @click="cancelViewChange(key)"
+                            title="取消对视图的修改">
+                        <span class="fa fa-ban">
+                        </span>
+                    </button>
+                  </div>
+                  <button v-else
+                          type="button"
+                          class="btn btn-sm btn-danger pull-right"
+                          @click="deleteView(item, key)">
+                      <span class="fa fa-trash-o">
+                      </span>&nbsp;
+                    {{$t('common.delete')}}
+                  </button>
+                </div>
+              </td>
+            </tr> <!-- /views -->
+            <!-- view list error -->
+            <tr v-if="viewListError">
+              <td colspan="6">
+                <p class="text-danger mb-0">
+                    <span class="fa fa-exclamation-triangle">
+                    </span>&nbsp;
+                  {{ viewListError }}
+                </p>
+              </td>
+            </tr> <!-- /view list error -->
+            <!-- new view form -->
+            <tr @keyup.enter="createView">
+              <td>
+                <input type="checkbox"
+                       v-model="newViewShared"
+                       class="form-check mt-2"
+                />
+              </td>
+              <td>
+                <input type="text"
+                       maxlength="20"
+                       v-model="newViewName"
+                       class="form-control form-control-sm"
+                       :placeholder="$t('Enter a new view name (20 chars or less)')"
+                />
+              </td>
+              <td colspan="2">
+                <input type="text"
+                       v-model="newViewExpression"
+                       class="form-control form-control-sm"
+                       :placeholder="$t('Enter a new view expression')"
+                />
+              </td>
+              <td>&nbsp;</td>
+              <td>
+                <button class="btn btn-theme-tertiary btn-sm pull-right"
+                        type="button"
+                        @click="createView">
+                    <span class="fa fa-plus-circle">
+                    </span>&nbsp;
+                  {{$t('common.create')}}
+                </button>
+              </td>
+            </tr> <!-- /new view form -->
+            <!-- view form error -->
+            <tr v-if="viewFormError">
+              <td colspan="6">
+                <p class="text-danger mb-0">
+                    <span class="fa fa-exclamation-triangle">
+                    </span>&nbsp;
+                  {{ viewFormError }}
+                </p>
+              </td>
+            </tr> <!-- /view form error -->
+            </tbody>
+          </table>
+
+        </form> <!-- /view settings -->
+
+        <!-- cron query settings -->
+        <form v-if="visibleTab === 'cron'"
+              class="form-horizontal"
+              id="cron">
+
+          <h3>{{$t('Cron Queries')}}</h3>
+
+          <p>
+            {{$t('crondescribe')}}
+            {{$t('cronquote')}}
+          </p>
+
+          <hr>
+
+          <table class="table table-striped table-sm">
+            <thead>
+            <tr>
+              <th>{{$t('settingEnabled')}}</th>
+              <th>{{$t('Processed')}}</th>
+              <th>{{$t('settingname')}}</th>
+              <th>{{$t('expression')}}</th>
+              <th>{{$t('Action')}}</th>
+              <th>{{$t('Tags')}}</th>
+              <th>通知</th>
+              <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- cron queries -->
+            <tr v-for="(item, key) in cronQueries"
+                @keyup.enter="updateCronQuery(key)"
+                @keyup.esc="cancelCronQueryChange(key)"
+                :key="key">
+              <td>
+                <input type="checkbox"
+                       v-model="item.enabled"
+                       @input="cronQueryChanged(key)"
+                />
+              </td>
+              <td>{{ item.count }}</td>
+              <td>
+                <input type="text"
+                       maxlength="20"
+                       v-model="item.name"
+                       class="form-control form-control-sm"
+                       @input="cronQueryChanged(key)"
+                />
+              </td>
+              <td>
+                <input type="text"
+                       v-model="item.query"
+                       class="form-control form-control-sm"
+                       @input="cronQueryChanged(key)"
+                />
+              </td>
+              <td>
+                <select class="form-control form-control-sm"
+                        v-model="item.action"
+                        @change="cronQueryChanged(key)">
+                  <option value="tag">Tag</option>
+                  <option v-for="(item, key) in molochClusters"
+                          :value="`forward:${key}`"
+                          :key="key">
+                    Tag & Export to {{ item.name }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <input type="text"
+                       v-model="item.tags"
+                       class="form-control form-control-sm"
+                       @input="cronQueryChanged(key)"
+                />
+              </td>
+              <td>
+                <select v-model="item.notifier"
+                        class="form-control form-control-sm"
+                        @input="cronQueryChanged(key)">
+                  <option value=undefined>none</option>
+                  <option v-for="notifier in notifiers"
+                          :key="notifier.name"
+                          :value="notifier.name">
+                    {{ notifier.name }} ({{ notifier.type }})
+                  </option>
+                </select>
+              </td>
+              <td>
+                <div v-if="item.changed"
+                     class="btn-group btn-group-sm pull-right">
+                  <button type="button"
+                          class="btn btn-theme-tertiary"
+                          v-b-tooltip.hover
+                          title="保存计划查询任务"
+                          @click="updateCronQuery(key)">
+                      <span class="fa fa-save">
+                      </span>
+                  </button>
+                  <button type="button"
+                          class="btn btn-warning"
+                          v-b-tooltip.hover
+                          title="撤销对计划查询任务的修改"
+                          @click="cancelCronQueryChange(key)">
+                      <span class="fa fa-ban">
+                      </span>
+                  </button>
+                </div>
+                <button type="button"
+                        class="btn btn-sm btn-danger pull-right"
+                        v-if="!item.changed"
+                        @click="deleteCronQuery(key)">
+                    <span class="fa fa-trash-o">
+                    </span>&nbsp;
+                  {{$t('common.delete')}}
+                </button>
+              </td>
+            </tr> <!-- /cron queries -->
+            <!-- cron query form error -->
+            <tr v-if="cronQueryListError">
+              <td colspan="8">
+                <p class="text-danger mb-0">
+                    <span class="fa fa-exclamation-triangle">
+                    </span>&nbsp;
+                  {{ cronQueryListError }}
+                </p>
+              </td>
+            </tr> <!-- /cron query form error -->
+            <!-- new cron query form -->
+            <tr @keyup.enter="createCronQuery">
+              <td>&nbsp;</td>
+              <td>
+                <select class="form-control form-control-sm"
+                        v-model="newCronQueryProcess"
+                        v-b-tooltip.hover
+                        :title="$t('Start processing cron query since')">
+                  <option value="0">Now</option>
+                 <option value="1">1 hour ago</option>
+                    <option value="6">6 hours ago</option>
+                    <option value="24">24 hours ago</option>
+                    <option value="48">48 hours ago</option>
+                    <option value="72">3 days ago</option>
+                    <option value="168">1 week ago</option>
+                    <option value="336">2 weeks ago</option>
+                    <option value="720">1 month ago</option>
+                    <option value="1440">2 months ago</option>
+                    <option value="4380">6 months ago</option>
+                    <option value="8760">1 year ago</option>
+                    <option value="-1">All (careful)</option>
+                </select>
+              </td>
+              <td>
+                <input type="text"
+                       v-model="newCronQueryName"
+                       class="form-control form-control-sm"
+                       maxlength="20"
+                       v-b-tooltip.hover
+                       :title="$t('Enter a new cron query name (20 chars or less)')"
+                       :placeholder="$t('Cron query name')"
+                />
+              </td>
+              <td>
+                <input type="text"
+                       v-model="newCronQueryExpression"
+                       class="form-control form-control-sm"
+                       v-b-tooltip.hover
+                       :title="$t('Enter a new cron query expression')"
+                       :placeholder="$t('Cron query expression')"
+                />
+              </td>
+              <td>
+                <select class="form-control form-control-sm"
+                        v-model="newCronQueryAction">
+                  <option value="tag">{{$t('common.tags')}}</option>
+                  <option v-for="(item, key) in molochClusters"
+                          :key="key"
+                          :value="`forward:${key}`">
+                    Tag & Export to {{ item.name }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <input type="text"
+                       v-model="newCronQueryTags"
+                       class="form-control form-control-sm"
+                       v-b-tooltip.hover
+                       :title="$t('Enter a comma separated list of tags')"
+                       :placeholder="$t('Comma separated list of tags')"
+                />
+              </td>
+              <td>
+                <select v-model="newCronQueryNotifier"
+                        class="form-control form-control-sm">
+                  <option value=undefined>none</option>
+                  <option v-for="notifier in notifiers"
+                          :key="notifier.name"
+                          :value="notifier.name">
+                    {{ notifier.name }} ({{ notifier.type }})
+                  </option>
+                </select>
+              </td>
+              <td>
+                <button type="button"
+                        class="btn btn-theme-tertiary btn-sm pull-right"
+                        @click="createCronQuery">
+                    <span class="fa fa-plus-circle">
+                    </span>&nbsp;
+                  {{$t('common.create')}}
+                </button>
+              </td>
+            </tr> <!-- /new cron query form -->
+            <!-- cron query form error -->
+            <tr v-if="cronQueryFormError">
+              <td colspan="8">
+                <p class="small text-danger mb-0">
+                    <span class="fa fa-exclamation-triangle">
+                    </span>&nbsp;
+                  {{ cronQueryFormError }}
+                </p>
+              </td>
+            </tr> <!-- /cron query form error -->
+            </tbody>
+          </table>
+
+        </form> <!-- /cron query settings -->
+
+        <!-- theme settings -->
+        <form v-if="visibleTab === 'theme'"
+              id="theme">
+
+          <h3>{{$t('UI Themes')}}</h3>
+
+          <p>
+            {{$t('Pick from a preexisting theme below')}}
+          </p>
+
+          <hr>
+
+          <!-- theme picker -->
+          <div class="row">
+            <div class="col-lg-6 col-md-12"
+                 v-for="theme in themeDisplays"
+                 :class="theme.class"
+                 :key="theme.class">
+              <div class="theme-display">
+                <nav class="navbar navbar-dark">
+                  <a class="navbar-brand cursor-pointer">
+                    <img src="../../assets/logo.png"
+                         class="dps-logo"
+                         alt="hoot"
+                    />
+                  </a>
+                  <ul class="navbar-nav icon">
+                    <span class="fa fa-info-circle fa-lg health-green">
+                    </span>
+                  </ul>
+                  <svg-icon icon-class="screenful" class="icon screenFull"></svg-icon>
+                  <svg-icon icon-class="users" class="icon logout"></svg-icon>
+                </nav>
+                <div class="display-sub-navbar">
+                  <div class="row">
+                    <div class="col-xl-5 col-lg-4 col-md-5">
+                      <div class="input-group input-group-sm ml-1">
+                        <span class="input-group-prepend">
+                          <span class="input-group-text">
+                            <span class="fa fa-search">
+                            </span>
+                          </span>
+                        </span>
+                        <input type="text"
+                               placeholder="Search"
+                               class="form-control"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-xl-7 col-lg-8 col-sm-7">
+                      <div class="font-weight-bold text-theme-accent">
+                        {{$t('Important text')}}
+                      </div>
+                      <div class="pull-right display-sub-navbar-buttons">
+                        <a class="btn btn-sm btn-default btn-theme-tertiary-display">
+                          {{$t('common.search')}}
+                        </a>
+                        <a class="btn btn-sm btn-default btn-theme-quaternary-display">
+                          <span class="fa fa-cog fa-lg">
+                          </span>
+                        </a>
+                        <a class="btn btn-sm btn-default btn-theme-secondary-display">
+                          <span class="fa fa-eye fa-lg">
+                          </span>
+                        </a>
+                        <b-dropdown right
+                                    size="sm"
+                                    class="pull-right ml-1 action-menu-dropdown"
+                                    variant="theme-primary-display">
+                          <b-dropdown-item>
+                            {{$t('Example')}}
+                          </b-dropdown-item>
+                          <b-dropdown-item class="active">
+                            {{$t('Active Example')}}
+                          </b-dropdown-item>
+                        </b-dropdown>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="display-sub-sub-navbar">
+                  <div class="ml-1 mt-2 pb-2">
+                    <span class="field cursor-pointer">
+                      {{$t('example field value')}}
+                      <span class="fa fa-caret-down">
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="custom-control custom-radio ml-1">
+                      <input type="radio"
+                             class="custom-control-input cursor-pointer"
+                             v-model="settings.theme"
+                             @change="changeTheme(theme.class)"
+                             :value="theme.class"
+                             :id="theme.class"
+                      />
+                      <label class="custom-control-label cursor-pointer"
+                             :for="theme.class">
+                        {{ theme.name }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> <!-- /theme picker -->
+        </form> <!-- /theme settings -->
+
+        <!-- password settings -->
+        <form v-if="visibleTab === 'password' && !multiviewer"
+              class="form-horizontal"
+              @keyup.enter="changePassword"
+              id="password">
+
+          <h3>{{$t('Change Password')}}</h3>
+
+          <hr>
+
+          <!-- current password -->
+          <div v-if="!userId"
+               class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('Current Password')}}
+            </label>
+            <div style="position: relative;" class="col-sm-6">
+              <input :type="oldPsdType" class="form-control" :placeholder="$t('Enter your current password')" v-model="currentPassword" />
+              <span @click.stop="changePswType(oldPsdType, 'oldPsdType')">
+                <svg-icon icon-class="eye" class="eye" style="position: absolute;top: 11px;right: 22px;cursor: pointer;"></svg-icon>
+              </span>
+            </div>
+          </div>
+          <!-- new password -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('New Password')}}
+            </label>
+            <div style="position: relative;" class="col-sm-6">
+              <input :type="newPsdType" class="form-control" :placeholder="$t('Enter a new password')" v-model="newPassword" />
+              <span @click.stop="changePswType(newPsdType, 'newPsdType')">
+                <svg-icon icon-class="eye" class="eye" style="position: absolute;top: 11px;right: 22px;cursor: pointer;"></svg-icon>
+              </span>
+            </div>
+          </div>
+
+          <!-- confirm new password -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label text-right font-weight-bold">
+              {{$t('New Password')}}
+            </label>
+            <div style="position: relative;" class="col-sm-6">
+              <input :type="confirmNewPsd" class="form-control" :placeholder="$t('Confirm your new password')" v-model="confirmNewPassword" />
+              <span @click.stop="changePswType(confirmNewPsd, 'confirmNewPsd')">
+                <svg-icon icon-class="eye" class="eye" style="position: absolute;top: 11px;right: 22px;cursor: pointer;"></svg-icon>
+              </span>
+            </div>
+          </div>
+
+          <!-- change password button/error -->
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label">&nbsp;</label>
+            <div class="col-sm-9">
+              <button type="button"
+                      class="btn btn-theme-tertiary"
+                      @click="changePassword">
+                {{$t('Change Password')}}
+              </button>
+              <span v-if="changePasswordError"
+                    class="small text-danger pl-4">
+                <span class="fa fa-exclamation-triangle">
+                </span>&nbsp;
+                {{ changePasswordError }}
+              </span>
+            </div>
+          </div> <!-- /change password button/error -->
+
+        </form> <!-- /password settings -->
+
+      </div>
+
+    </div> <!-- /content -->
+
+  </div> <!-- /settings content -->
+
+</template>
+
+<script>
+import UserService from '../users/UserService';
+import ConfigService from '../utils/ConfigService';
+import FieldService from '../search/FieldService';
+import customCols from '../sessions/customCols.json';
+import MolochToast from '../utils/Toast';
+import MolochError from '../utils/Error';
+import MolochLoading from '../utils/Loading';
+import MolochFieldTypeahead from '../utils/FieldTypeahead';
+import { showPassword } from '@/api/validate';
+
+let clockInterval;
+
+const defaultSpiviewConfig = { fields: ['dstIp', 'protocol', 'srcIp'] };
+const defaultColConfig = {
+  order: [['firstPacket', 'desc']],
+  columns: ['firstPacket', 'lastPacket', 'src', 'srcPort', 'dst', 'dstPort', 'totPackets', 'dbby', 'node', 'info']
+};
+
+export default {
+  name: 'Settings',
+  components: {
+    MolochError,
+    MolochLoading,
+    MolochToast,
+    MolochFieldTypeahead
+  },
+  data: function () {
+    return {
+      confirmNewPsd: 'password',
+      newPsdType: 'password',
+      oldPsdType: 'password',
+      // page vars
+      userId: undefined,
+      error: '',
+      loading: true,
+      msg: '',
+      msgType: undefined,
+      displayName: undefined,
+      visibleTab: 'general', // default tab
+      settings: {},
+      fields: undefined,
+      fieldsMap: undefined,
+      fieldsPlus: undefined,
+      columns: [],
+      // general settings vars
+      date: undefined,
+      spiGraphField: undefined,
+      spiGraphTypeahead: undefined,
+      connSrcField: undefined,
+      connSrcFieldTypeahead: undefined,
+      connDstField: undefined,
+      connDstFieldTypeahead: undefined,
+      // view settings vars
+      viewListError: '',
+      viewFormError: '',
+      newViewName: '',
+      newViewExpression: '',
+      newViewShared: false,
+      // cron settings vars
+      cronQueries: undefined,
+      cronQueryListError: '',
+      cronQueryFormError: '',
+      newCronQueryName: '',
+      newCronQueryExpression: '',
+      newCronQueryTags: '',
+      newCronQueryNotifier: undefined,
+      newCronQueryProcess: '0',
+      newCronQueryAction: 'tag',
+      molochClusters: {},
+      // column config settings vars
+      colConfigs: undefined,
+      colConfigError: '',
+      defaultColConfig: defaultColConfig,
+      // spiview field config settings vars
+      spiviewConfigs: undefined,
+      spiviewConfigError: '',
+      defaultSpiviewConfig: defaultSpiviewConfig,
+      // theme settings vars
+      themeDisplays: [
+        { name: 'Purp-purp', class: 'default-theme' },
+        { name: 'Blue', class: 'blue-theme' },
+        { name: 'Green', class: 'green-theme' },
+        { name: 'Cotton Candy', class: 'cotton-candy-theme' },
+        { name: 'Green on Black', class: 'dark-2-theme' },
+        { name: 'Dark Blue', class: 'dark-3-theme' }
+      ],
+      creatingCustom: false,
+      displayHelp: true,
+      // password settings vars
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
+      changePasswordError: '',
+      multiviewer: this.$constants.DPS_MULTIVIEWER,
+      // notifiers settings vars
+      notifiers: undefined,
+      notifierTypes: [],
+      notifiersError: '',
+      newNotifier: undefined,
+      newNotifierError: ''
+    };
+  },
+  computed: {
+    user: function () {
+      return this.$store.state.user;
+    },
+    views: {
+      get: function () {
+        return this.$store.state.views;
+      },
+      set: function (newValue) {
+        this.$store.commit('setViews', newValue);
+      }
+    }
+  },
+  created: function () {
+    // does the url specify a tab in hash
+    let tab = window.location.hash;
+    if (tab) { // if there is a tab specified and it's a valid tab
+      tab = tab.replace(/^#/, '');
+      if (tab === 'general' || tab === 'views' || tab === 'cron' ||
+        tab === 'col' || tab === 'theme' || tab === 'password' ||
+        tab === 'spiview' || tab === 'notifiers') {
+        this.visibleTab = tab;
+      }
+
+      if (tab === 'password' && this.multiviewer) {
+        // multiviewer user can't change password
+        this.openView('general');
+      }
+    }
+
+    this.getThemeColors();
+
+    UserService.getCurrent()
+      .then((response) => {
+        this.displayName = response.userId;
+        // only admins can edit other users' settings
+        if (response.createEnabled && this.$route.query.userId) {
+          if (response.userId === this.$route.query.userId) {
+            // admin editing their own user so the routeParam is unnecessary
+            this.$router.push({
+              hash: this.$route.hash,
+              query: {
+                ...this.$route.query,
+                userId: undefined
+              }
+            });
+          } else { // admin editing another user
+            this.userId = this.$route.query.userId;
+            this.displayName = this.$route.query.userId;
+          }
+        } else { // normal user has no permission, so remove the routeParam
+          // (even if it's their own userId because it's unnecessary)
+          this.$router.push({
+            hash: this.$route.hash,
+            query: {
+              ...this.$route.query,
+              userId: undefined
+            }
+          });
+        }
+
+        // always get the user's settings because current user is cached
+        // so response.settings might be stale
+        this.getSettings();
+
+        // get all the other things!
+        this.getViews();
+        this.getCronQueries();
+        this.getColConfigs();
+        this.getSpiviewConfigs();
+        this.getNotifierTypes();
+        this.getNotifiers();
+      })
+      .catch((error) => {
+        this.error = error.text;
+        this.loading = false;
+      });
+
+    ConfigService.getMolochClusters()
+      .then((response) => {
+        this.molochClusters = response;
+      });
+
+    // get fields from field service then get sessionsNew state
+    FieldService.get(true)
+      .then((response) => {
+        this.fields = JSON.parse(JSON.stringify(response));
+        this.fieldsPlus = JSON.parse(JSON.stringify(response));
+        this.fieldsPlus.push({
+          dbField: 'ip.dst:port',
+          exp: 'ip.dst:port',
+          help: 'Destination IP:Destination Port',
+          group: 'general',
+          friendlyName: 'Dst IP:Dst Port'
+        });
+
+        // add custom columns to the fields array
+        for (let key in customCols) {
+          if (customCols.hasOwnProperty(key)) {
+            this.fields.push(customCols[key]);
+          }
+        }
+
+        // build fields map for quick lookup by dbField
+        this.fieldsMap = {};
+        for (let i = 0, len = this.fields.length; i < len; ++i) {
+          let field = this.fields[i];
+          this.fieldsMap[field.dbField] = field;
+        }
+
+        UserService.getState('sessionsNew')
+          .then((response) => {
+            this.setupColumns(response.data.visibleHeaders);
+            // if the sort column setting does not match any of the visible
+            // headers, set the sort column setting to last
+            if (response.data.visibleHeaders.indexOf(this.settings.sortColumn) === -1) {
+              this.settings.sortColumn = 'last';
+            }
+          })
+          .catch(() => {
+            this.setupColumns(['firstPacket', 'lastPacket', 'src', 'srcPort', 'dst', 'dstPort', 'totPackets', 'dbby', 'node', 'info']);
+          });
+      });
+  },
+  methods: {
+    changePswType (passwordType, name) {
+      let that = this;
+      showPassword(passwordType, name, that);
+    },
+    /* exposed page functions ---------------------------------------------- */
+    /* opens a specific settings tab */
+    openView: function (tabName) {
+      this.visibleTab = tabName;
+      this.$router.push({
+        hash: tabName
+      });
+    },
+    /* remove the message when user is done with it or duration ends */
+    messageDone: function () {
+      this.msg = '';
+      this.msgType = undefined;
+    },
+    /* GENERAL ------------------------------- */
+    /**
+     * saves the user's settings and displays a message
+     * @param updateTheme whether to update the UI theme
+     */
+    update: function (updateTheme) {
+      UserService.saveSettings(this.settings, this.userId)
+        .then((response) => {
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+
+          if (updateTheme) {
+            let now = Date.now();
+            if ($('link[href^="user.css"]').length) {
+              $('link[href^="user.css"]').remove();
+            }
+            $('head').append(`<link rel="stylesheet"
+                            href="user.css?v${now}"
+                            type="text/css" />`);
+          }
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /* updates the displayed date for the timzeone setting
+     * triggered by the user changing the timezone setting */
+    updateTime: function (newTimezone) {
+      this.settings.timezone = newTimezone;
+      this.tick();
+      this.update();
+    },
+    updateSessionDetailFormat: function (newDetailFormat) {
+      this.settings.detailFormat = newDetailFormat;
+      this.update();
+    },
+    updateNumberOfPackets: function (newNumPackets) {
+      this.settings.numPackets = newNumPackets;
+      this.update();
+    },
+    updateShowPacketTimestamps: function (newShowTimestamps) {
+      this.settings.showTimestamps = newShowTimestamps;
+      this.update();
+    },
+    updateQueryOnPageLoad: function (newManualQuery) {
+      this.settings.manualQuery = newManualQuery;
+      this.update();
+    },
+    updateSortDirection: function (newSortDirection) {
+      this.settings.sortDirection = newSortDirection;
+      this.update();
+    },
+    spiGraphFieldSelected: function (field) {
+      this.spiGraphTypeahead = field.friendlyName;
+      this.settings.spiGraph = field.dbField;
+      this.spiGraphField = field;
+      this.update();
+    },
+    connSrcFieldSelected: function (field) {
+      this.connSrcFieldTypeahead = field.friendlyName;
+      this.settings.connSrcField = field.dbField;
+      this.connSrcField = field;
+      this.update();
+    },
+    connDstFieldSelected: function (field) {
+      this.connDstFieldTypeahead = field.friendlyName;
+      this.settings.connDstField = field.dbField;
+      this.connDstField = field;
+      this.update();
+    },
+    /* starts the clock for the timezone setting */
+    startClock: function () {
+      this.tick();
+      clockInterval = setInterval(() => {
+        this.tick();
+      }, 1000);
+    },
+    /* updates the date and format for the timezone setting */
+    tick: function () {
+      this.date = Math.floor(new Date() / 1000);
+      if (this.settings.timezone === 'gmt') {
+        this.dateFormat = 'yyyy/MM/dd HH:mm:ss\'Z\'';
+      } else {
+        this.dateFormat = 'yyyy/MM/dd HH:mm:ss';
+      }
+    },
+    /* VIEWS ------------------------------------------- */
+    /* creates a view given the view name and expression */
+    createView: function () {
+      if (!this.newViewName || this.newViewName === '') {
+        this.viewFormError = 'No view name specified.';
+        return;
+      }
+
+      if (!this.newViewExpression || this.newViewExpression === '') {
+        this.viewFormError = 'No view expression specified.';
+        return;
+      }
+
+      let data = {
+        shared: this.newViewShared,
+        name: this.newViewName,
+        expression: this.newViewExpression
+      };
+
+      UserService.createView(data, this.userId)
+        .then((response) => {
+          // add the view to the view list
+          if (response.view && response.viewName) {
+            if (this.views[response.viewName]) {
+              // a shared view with this name already exists
+              // so just get the list of views again
+              this.getViews();
+            } else {
+              response.view.name = response.viewName;
+              this.views[response.viewName] = response.view;
+            }
+          }
+          // clear the inputs and any error
+          this.viewFormError = false;
+          this.newViewName = null;
+          this.newViewExpression = null;
+          this.newViewShared = false;
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /**
+     * Deletes a view given its name
+     * @param {Object} view The view to delete
+     * @param {string} name The name of the view to delete
+     */
+    deleteView: function (view, name) {
+      UserService.deleteView(view, this.userId)
+        .then((response) => {
+          // remove the view from the view list
+          this.views[name] = null;
+          delete this.views[name];
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /**
+     * Sets a view as having been changed
+     * @param {string} key The unique id of the changed view
+     */
+    viewChanged: function (key) {
+      this.views[key].changed = true;
+    },
+    /**
+     * Cancels a view change by retrieving the view
+     * @param {string} key The unique id of the view
+     */
+    cancelViewChange: function (key) {
+      UserService.getViews(this.userId)
+        .then((response) => {
+          this.views[key] = response[key];
+        })
+        .catch((error) => {
+          this.viewListError = error.text;
+        });
+    },
+    /**
+     * Updates a view
+     * @param {string} key The unique id of the view to update
+     */
+    updateView: function (key) {
+      let data = this.views[key];
+
+      if (!data) {
+        this.msg = 'Could not find corresponding view';
+        this.msgType = 'danger';
+        return;
+      }
+
+      if (!data.changed) {
+        this.msg = 'This view has not changed';
+        this.msgType = 'warning';
+        return;
+      }
+
+      data.key = key;
+      UserService.updateView(data, this.userId)
+        .then((response) => {
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+          // set the view as unchanged
+          data.changed = false;
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /**
+     * Shares or unshares a view given its name
+     * @param {Object} view The view to share/unshare
+     */
+    toggleShared: function (view) {
+      UserService.toggleShareView(view, view.user)
+        .then((response) => {
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /* CRON QUERIES ------------------------------------ */
+    /* creates a cron query given the name, expression, process, and tags */
+    createCronQuery: function () {
+      if (!this.newCronQueryName || this.newCronQueryName === '') {
+        this.cronQueryFormError = 'No cron query name specified.';
+        return;
+      }
+
+      if (!this.newCronQueryExpression || this.newCronQueryExpression === '') {
+        this.cronQueryFormError = 'No cron query expression specified.';
+        return;
+      }
+
+      if (!this.newCronQueryTags || this.newCronQueryTags === '') {
+        this.cronQueryFormError = 'No cron query tags specified.';
+        return;
+      }
+
+      let data = {
+        enabled: true,
+        name: this.newCronQueryName,
+        query: this.newCronQueryExpression,
+        action: this.newCronQueryAction,
+        tags: this.newCronQueryTags,
+        since: this.newCronQueryProcess
+      };
+
+      if (this.newCronQueryNotifier) {
+        data.notifier = this.newCronQueryNotifier;
+      }
+
+      UserService.createCronQuery(data, this.userId)
+        .then((response) => {
+          // add the cron query to the view
+          this.cronQueryFormError = false;
+          data.count = 0; // initialize count to 0
+          this.cronQueries[response.key] = data;
+          // reset fields
+          this.newCronQueryName = '';
+          this.newCronQueryTags = '';
+          this.newCronQueryExpression = '';
+          this.newCronQueryNotifier = '';
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /**
+     * Deletes a cron query given its key
+     * @param {string} key The cron query's key
+     */
+    deleteCronQuery: function (key) {
+      UserService.deleteCronQuery(key, this.userId)
+        .then((response) => {
+          // remove the cron query from the view
+          this.cronQueries[key] = null;
+          delete this.cronQueries[key];
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /**
+     * Sets a cron query as having been changed
+     * @param {string} key The unique id of the cron query
+     */
+    cronQueryChanged: function (key) {
+      this.cronQueries[key].changed = true;
+    },
+    /**
+     * Cancels a cron query change by retrieving the cron query
+     * @param {string} key The unique id of the cron query
+     */
+    cancelCronQueryChange: function (key) {
+      UserService.getCronQueries(this.userId)
+        .then((response) => {
+          this.cronQueries[key] = response[key];
+        })
+        .catch((error) => {
+          this.cronQueryListError = error.text;
+        });
+    },
+    /**
+     * Updates a cron query
+     * @param {string} key The unique id of the cron query to update
+     */
+    updateCronQuery: function (key) {
+      let data = this.cronQueries[key];
+
+      if (!data) {
+        this.msg = 'Could not find corresponding cron query';
+        this.msgType = 'danger';
+        return;
+      }
+
+      if (!data.changed) {
+        this.msg = 'This cron query has not changed';
+        this.msgType = 'warning';
+        return;
+      }
+
+      data.key = key;
+
+      UserService.updateCronQuery(data, this.userId)
+        .then((response) => {
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+          // set the cron query as unchanged
+          data.changed = false;
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+    /* COLUMN CONFIGURATIONS --------------------------- */
+    /* SPIVIEW FIELD CONFIGURATIONS -------------------- */
+    /* THEMES ------------------------------------------ */
+    setTheme: function () {
+      // default to default theme if the user has not set a theme
+      if (!this.settings.theme) { this.settings.theme = 'blue-theme'; }
+      if (this.settings.theme.startsWith('custom')) {
+        this.settings.theme = 'custom-theme';
+        this.creatingCustom = true;
+      }
+    },
+    /* changes the ui theme (picked from existing themes) */
+    changeTheme: function (newTheme) {
+      this.settings.theme = newTheme;
+
+      $(document.body).removeClass();
+      $(document.body).addClass(this.settings.theme);
+
+      this.update();
+
+      this.getThemeColors();
+    },
+    /* changes a color value of a custom theme and applies the theme */
+    changeColor: function (newColor) {
+      if (newColor) {
+        this[newColor.name] = newColor.value;
+      }
+
+      $(document.body).removeClass();
+      $(document.body).addClass('custom-theme');
+
+      this.setThemeString();
+
+      this.settings.theme = `custom1:${this.themeString}`;
+
+      this.update(true);
+    },
+    /* PASSWORD ---------------------------------------- */
+    /* changes the user's password given the current password, the new password,
+     * and confirmation of the new password */
+    changePassword: function () {
+      if (!this.userId && (!this.currentPassword || this.currentPassword === '')) {
+        this.changePasswordError = 'You must enter your current password';
+        return;
+      }
+
+      if (!this.newPassword || this.newPassword === '') {
+        this.changePasswordError = 'You must enter a new password';
+        return;
+      }
+
+      if (!this.confirmNewPassword || this.confirmNewPassword === '') {
+        this.changePasswordError = 'You must confirm your new password';
+        return;
+      }
+
+      if (this.newPassword !== this.confirmNewPassword) {
+        this.changePasswordError = 'Your passwords don\'t match';
+        return;
+      }
+
+      let data = {
+        newPassword: this.newPassword,
+        currentPassword: this.currentPassword
+      };
+
+      UserService.changePassword(data, this.userId)
+        .then((response) => {
+          this.changePasswordError = false;
+          this.currentPassword = null;
+          this.newPassword = null;
+          this.confirmNewPassword = null;
+          // display success message to user
+          this.msg = response.text;
+          this.msgType = 'success';
+        })
+        .catch((error) => {
+          // display error message to user
+          this.msg = error.text;
+          this.msgType = 'danger';
+        });
+    },
+
+    /* helper functions ---------------------------------------------------- */
+    /* retrievs the theme colors from the document body's property values */
+    getThemeColors: function () {
+      let styles = window.getComputedStyle(document.body);
+
+      this.background = styles.getPropertyValue('--color-background').trim() || '#FFFFFF';
+      this.foreground = styles.getPropertyValue('--color-foreground').trim() || '#333333';
+      this.foregroundAccent = styles.getPropertyValue('--color-foreground-accent').trim();
+
+      this.primary = styles.getPropertyValue('--color-primary').trim();
+      this.primaryLightest = styles.getPropertyValue('--color-primary-lightest').trim();
+
+      this.secondary = styles.getPropertyValue('--color-secondary').trim();
+      this.secondaryLightest = styles.getPropertyValue('--color-secondary-lightest').trim();
+
+      this.tertiary = styles.getPropertyValue('--color-tertiary').trim();
+      this.tertiaryLightest = styles.getPropertyValue('--color-tertiary-lightest').trim();
+
+      this.quaternary = styles.getPropertyValue('--color-quaternary').trim();
+      this.quaternaryLightest = styles.getPropertyValue('--color-quaternary-lightest').trim();
+
+      this.water = styles.getPropertyValue('--color-water').trim();
+      this.land = styles.getPropertyValue('--color-land').trim() || this.primary;
+
+      this.src = styles.getPropertyValue('--color-src').trim() || '#CA0404';
+      this.dst = styles.getPropertyValue('--color-dst').trim() || '#0000FF';
+
+      this.setThemeString();
+    },
+    setThemeString: function () {
+      this.themeString = `${this.background},${this.foreground},${this.foregroundAccent},${this.primary},${this.primaryLightest},${this.secondary},${this.secondaryLightest},${this.tertiary},${this.tertiaryLightest},${this.quaternary},${this.quaternaryLightest},${this.water},${this.land},${this.src},${this.dst}`;
+    },
+    /* retrieves the specified user's settings */
+    getSettings: function () {
+      UserService.getSettings(this.userId)
+        .then((response) => {
+          // set defaults so that radio buttons show the default value
+          if (!response.timezone) { response.timezone = 'local'; }
+          if (!response.detailFormat) { response.detailFormat = 'last'; }
+          if (!response.numPackets) { response.numPackets = 'last'; }
+          if (!response.showTimestamps) { response.showTimestamps = 'last'; }
+          if (!response.manualQuery) { response.manualQuery = false; }
+
+          // dbField is saved in settings, but show the field's friendlyName
+          for (let i = 0, len = this.fieldsPlus.length; i < len; i++) {
+            let field = this.fieldsPlus[i];
+            if (response.spiGraph === field.dbField) {
+              this.spiGraphField = field;
+              this.spiGraphTypeahead = field.friendlyName;
+            }
+            if (response.connSrcField === field.dbField) {
+              this.connSrcField = field;
+              this.connSrcFieldTypeahead = field.friendlyName;
+            }
+            if (response.connDstField === field.dbField) {
+              this.connDstField = field;
+              this.connDstFieldTypeahead = field.friendlyName;
+            }
+          }
+
+          this.settings = response;
+          this.loading = false;
+
+          this.setTheme();
+          this.startClock();
+        })
+        .catch((error) => {
+          this.loading = false;
+          if (error.text === 'User not found') {
+            this.error = `<div class="text-center">
+                          ${error.text}
+                          <small><a href="settings">View your own settings?</a></small>
+                        </div>`;
+          } else {
+            this.error = error.text;
+          }
+          this.displayName = '';
+        });
+    },
+    /* retrieves the specified user's views */
+    getViews: function () {
+      UserService.getViews(this.userId)
+        .then((response) => {
+          this.views = response;
+        })
+        .catch((error) => {
+          this.viewListError = error.text;
+        });
+    },
+    /* retrieves the specified user's cron queries */
+    getCronQueries: function () {
+      UserService.getCronQueries(this.userId)
+        .then((response) => {
+          this.cronQueries = response;
+        })
+        .catch((error) => {
+          this.cronQueryListError = error.text;
+        });
+    },
+    /* retrieves the specified user's custom column configurations */
+    getColConfigs: function () {
+      UserService.getColumnConfigs(this.userId)
+        .then((response) => {
+          this.colConfigs = response;
+        })
+        .catch((error) => {
+          this.colConfigError = error.text;
+        });
+    },
+    /* retrieves the specified user's custom spiview fields configurations.
+     * dissects the visible spiview fields for view consumption */
+    getSpiviewConfigs: function () {
+      UserService.getSpiviewFields(this.userId)
+        .then((response) => {
+          this.spiviewConfigs = response;
+
+          for (let x = 0, xlen = this.spiviewConfigs.length; x < xlen; ++x) {
+            let config = this.spiviewConfigs[x];
+            let spiParamsArray = config.fields.split(',');
+
+            // get each field from the spi query parameter and issue
+            // a query for one field at a time
+            for (let i = 0, len = spiParamsArray.length; i < len; ++i) {
+              let param = spiParamsArray[i];
+              let split = param.split(':');
+              let fieldID = split[0];
+              let count = split[1];
+
+              let field;
+
+              for (let key in this.fields) {
+                if (this.fields[key].dbField === fieldID) {
+                  field = this.fields[key];
+                  break;
+                }
+              }
+
+              if (field) {
+                if (!config.fieldObjs) { config.fieldObjs = []; }
+
+                field.count = count;
+                config.fieldObjs.push(field);
+              }
+            }
+          }
+        })
+        .catch((error) => {
+          this.spiviewConfigError = error.text;
+        });
+    },
+    /* retrieves the types of notifiers that can be configured */
+    getNotifierTypes: function () {
+      this.$http.get('notifierTypes')
+        .then((response) => {
+          this.notifierTypes = response.data;
+        }, (error) => {
+          this.notifiersError = error.text || error;
+        });
+    },
+    /* retrieves the notifiers that have been configured */
+    getNotifiers: function () {
+      this.$http.get('notifiers')
+        .then((response) => {
+          this.notifiers = response.data;
+        }, (error) => {
+          this.notifiersError = error.text || error;
+        });
+    },
+    /**
+     * Setup this.columns with a list of field objects
+     * @param {array} colIdArray The array of column ids
+     */
+    setupColumns: function (colIdArray) {
+      this.columns = [];
+      for (let i = 0, len = colIdArray.length; i < len; ++i) {
+        this.columns.push(this.getField(colIdArray[i]));
+      }
+    },
+    /**
+     * Gets the field that corresponds to a field's dbField value
+     * @param {string} dbField The fields dbField value
+     * @returns {object} field The field that corresponds to the entered dbField
+     */
+    getField: function (dbField) {
+      return this.fieldsMap[dbField];
+    }
+  },
+  beforeDestroy: function () {
+    if (clockInterval) { clearInterval(clockInterval); }
+
+    // remove userId route query parameter so that when a user
+    // comes back to this page, they are on their own settings
+    this.$router.replace({
+      query: {
+        ...this.$route.query,
+        userId: undefined
+      }
+    });
+  }
+};
+</script>
+
+<style>
+  /* fix dropdown location */
+  .settings-page .dropdown-menu.field-typeahead {
+    margin-top: -15px;
+    left: 15px;
+  }
+
+  /* settings page, navbar, and content styles - */
+  .settings-page {
+    /*margin-top: 36px;*/
+    padding-top: 36px;
+  }
+  .settings-content {
+    margin-top: 90px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .settings-page .sub-navbar {
+    z-index: 4;
+  }
+
+  /* fixed tab buttons */
+  .settings-page div.nav-pills {
+    position: fixed;
+  }
+
+  /* make sure the form is taller than the nav pills */
+  .settings-page form {
+    min-height: 280px;
+  }
+
+  .settings-page .settings-error {
+    margin-top: 6rem;
+    margin-bottom: 1rem;
+  }
+
+  /* theme displays ----------------- */
+  .field {
+    cursor: pointer;
+    padding: 0 1px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+  }
+  .field .fa {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .field:hover .fa {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .settings-page .theme-display {
+    overflow: hidden;
+    border-radius: 6px;
+    padding-bottom: 20px;
+  }
+
+  .settings-page .navbar {
+    min-height: 20px;
+    height: 30px;
+    border-radius: 6px 6px 0 0;
+    z-index: 1;
+  }
+
+  .settings-page .navbar .dps-logo {
+    height: 32px;
+    position: absolute;
+    top: -2px;
+    left: 6px;
+  }
+
+  .settings-page .navbar .nav {
+    position: absolute;
+    left: 125px
+  }
+  .settings-page .navbar .icon {
+    position: absolute;
+  }
+  .settings-page .navbar .screenFull {
+    right:25px;
+  }
+  .settings-page .navbar .logout {
+    right:5px;
+  }
+  .settings-page .navbar .navbar-nav {
+    /*margin-right: -8px;*/
+    right:45px;
+  }
+
+  .settings-page .navbar .navbar-nav .health-green {
+    color: #00aa00;
+  }
+
+  .settings-page .navbar-dark a.active {
+    color: #FFFFFF;
+  }
+  .settings-page .navbar-dark a {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .settings-page .navbar-dark a:not(.active):hover {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .settings-page .display-sub-navbar {
+    height: 40px;
+    position: relative;
+    -webkit-box-shadow: 0 0 16px -2px black;
+    -moz-box-shadow: 0 0 16px -2px black;
+    box-shadow: 0 0 16px -2px black;
+  }
+  .settings-page .display-sub-navbar .input-group {
+    padding-top: 4px;
+  }
+
+  .settings-page .display-sub-navbar .display-sub-navbar-buttons {
+    margin-top: 4px;
+    margin-right: 4px;
+    margin-left: -10px;
+  }
+
+  .settings-page .display-sub-navbar .text-theme-accent {
+    display: inline-block;
+    margin-left: -20px;
+    padding-top: 11px;
+    font-size: 12px;
+  }
+
+  .settings-page .display-sub-sub-navbar {
+    border-radius: 0 0 6px 6px;
+    margin-top: -6px;
+    padding-top: 6px;
+  }
+
+  /* default */
+  .settings-page .default-theme .navbar {
+    background-color: #530763;
+    border-color: #360540;
+  }
+
+  .settings-page .default-theme .input-group-prepend > .input-group-text {
+    color: #333333 !important;
+    background-color: #EEEEEE !important;
+    border-color: #CCCCCC !important;
+  }
+
+  .settings-page .default-theme .display-sub-navbar {
+    background-color: #EDFCFF;
+  }
+
+  .settings-page .default-theme .display-sub-sub-navbar {
+    background-color: #FFF7E5;
+  }
+
+  .settings-page .default-theme .display-sub-navbar .text-theme-accent {
+    color: #76207d;
+  }
+
+  .settings-page .default-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: #830B9C;
+    border-color: #530763;
+  }
+  .settings-page .default-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: #1F1FA5;
+    border-color: #1A1A87;
+  }
+  .settings-page .default-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: #079B72;
+    border-color: #077D5C;
+  }
+  .settings-page .default-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: #ECB30A;
+    border-color: #CD9A09;
+  }
+
+  .settings-page .default-theme .dropdown-menu {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+    padding: 2px 0;
+    font-size: .85rem;
+    min-width: 12rem;
+  }
+  .settings-page .default-theme .dropdown-menu .dropdown-item {
+    color: #212529;
+    padding: 2px 8px;
+  }
+  .settings-page .default-theme .dropdown-menu .dropdown-item:hover {
+    background-color: #EEEEEE;
+    color: #212529;
+  }
+  .settings-page .default-theme .dropdown-menu .dropdown-item:focus {
+    background-color: #FFFFFF;
+    color: #212529;
+  }
+  .settings-page .default-theme .dropdown-menu .dropdown-item.active {
+    background-color: #830B9C;
+    color: #FFFFFF;
+  }
+
+  .settings-page .default-theme .field {
+    color: #76207d;
+  }
+  .settings-page .default-theme .field:hover {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+  }
+
+  /* blue */
+  .settings-page .blue-theme .navbar {
+    background-color: #1463c2;
+    border-color: #000000;
+  }
+
+  .settings-page .blue-theme .input-group-prepend > .input-group-text {
+    color: #333333 !important;
+    background-color: #EEEEEE !important;
+    border-color: #CCCCCC !important;
+  }
+
+  .settings-page .blue-theme .display-sub-navbar {
+    background-color: #DBECE7;
+  }
+
+  .settings-page .blue-theme .display-sub-sub-navbar {
+    background-color: #FFF7E5;
+  }
+
+  .settings-page .blue-theme .display-sub-navbar .text-theme-accent {
+    color: #9A4E93;
+  }
+
+  .settings-page .blue-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: #1463C2;
+    border-color: #530763;
+  }
+  .settings-page .blue-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: #3D7B7E;
+    border-color: #306264;
+  }
+  .settings-page .blue-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: #42B7C5;
+    border-color: #33919b;
+  }
+  .settings-page .blue-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: #ECB30A;
+    border-color: #CD9A09;
+  }
+
+  .settings-page .blue-theme .dropdown-menu {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+    padding: 2px 0;
+    font-size: .85rem;
+    min-width: 12rem;
+  }
+  .settings-page .blue-theme .dropdown-menu .dropdown-item {
+    color: #212529;
+    padding: 2px 8px;
+  }
+  .settings-page .blue-theme .dropdown-menu .dropdown-item:hover {
+    background-color: #EEEEEE;
+    color: #212529;
+  }
+  .settings-page .blue-theme .dropdown-menu .dropdown-item:focus {
+    background-color: #FFFFFF;
+    color: #212529;
+  }
+  .settings-page .blue-theme .dropdown-menu .dropdown-item.active {
+    background-color: #1463C2;
+    color: #FFFFFF;
+  }
+
+  .settings-page .green-theme .field {
+    color: #9A4E93;
+  }
+  .settings-page .green-theme .field:hover {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+  }
+
+  /* green */
+  .settings-page .green-theme .navbar {
+    background-color: #2A6E3d;
+    border-color: #235A32;
+  }
+
+  .settings-page .green-theme .input-group-prepend > .input-group-text {
+    color: #333333 !important;
+    background-color: #EEEEEE !important;
+    border-color: #CCCCCC !important;
+  }
+
+  .settings-page .green-theme .display-sub-navbar {
+    background-color: #DBECE7;
+  }
+
+  .settings-page .green-theme .display-sub-sub-navbar {
+    background-color: #FDFFE2;
+  }
+
+  .settings-page .green-theme .display-sub-navbar .text-theme-accent {
+    color: #38738d;
+  }
+
+  .settings-page .green-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: #2A7847;
+    border-color: #2A6E3d;
+  }
+  .settings-page .green-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: #3D7B7E;
+    border-color: #306264;
+  }
+  .settings-page .green-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: #91C563;
+    border-color: #7EAA57;
+  }
+  .settings-page .green-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: #BECF14;
+    border-color: #ADBC12;
+  }
+
+  .settings-page .green-theme .dropdown-menu {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+    padding: 2px 0;
+    font-size: .85rem;
+    min-width: 12rem;
+  }
+  .settings-page .green-theme .dropdown-menu .dropdown-item {
+    color: #212529;
+    padding: 2px 8px;
+  }
+  .settings-page .green-theme .dropdown-menu .dropdown-item:hover {
+    background-color: #EEEEEE;
+    color: #212529;
+  }
+  .settings-page .green-theme .dropdown-menu .dropdown-item:focus {
+    background-color: #FFFFFF;
+    color: #212529;
+  }
+  .settings-page .green-theme .dropdown-menu .dropdown-item.active {
+    background-color: #2A7847;
+    color: #FFFFFF;
+  }
+
+  .settings-page .blue-theme .field {
+    color: #38738d;
+  }
+  .settings-page .blue-theme .field:hover {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+  }
+
+  /* cotton candy */
+  .settings-page .cotton-candy-theme .navbar {
+    background-color: #B0346D;
+    border-color: #9B335A;
+  }
+
+  .settings-page .cotton-candy-theme .input-group-prepend > .input-group-text {
+    color: #333333 !important;
+    background-color: #EEEEEE !important;
+    border-color: #CCCCCC !important;
+  }
+
+  .settings-page .cotton-candy-theme .display-sub-navbar {
+    background-color: #D7F1FF;
+  }
+
+  .settings-page .cotton-candy-theme .display-sub-sub-navbar {
+    background-color: #FFF8DD;
+  }
+
+  .settings-page .cotton-candy-theme .display-sub-navbar .text-theme-accent {
+    color: #9A4E93;
+  }
+
+  .settings-page .cotton-candy-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: #C43D75;
+    border-color: #B0346D;
+  }
+  .settings-page .cotton-candy-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: #3CAED2;
+    border-color: #389BBE;
+  }
+  .settings-page .cotton-candy-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: #079B72;
+    border-color: #077D5C;
+  }
+  .settings-page .cotton-candy-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: #F39C12;
+    border-color: #D78A10;
+  }
+
+  .settings-page .cotton-candy-theme .dropdown-menu {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+    padding: 2px 0;
+    font-size: .85rem;
+    min-width: 12rem;
+  }
+  .settings-page .cotton-candy-theme .dropdown-menu .dropdown-item {
+    color: #212529;
+    padding: 2px 8px;
+  }
+  .settings-page .cotton-candy-theme .dropdown-menu .dropdown-item:hover {
+    background-color: #EEEEEE;
+    color: #212529;
+  }
+  .settings-page .cotton-candy-theme .dropdown-menu .dropdown-item:focus {
+    background-color: #FFFFFF;
+    color: #212529;
+  }
+  .settings-page .cotton-candy-theme .dropdown-menu .dropdown-item.active {
+    background-color: #C43D75;
+    color: #FFFFFF;
+  }
+
+  .settings-page .cotton-candy-theme .field {
+    color: #9A4E93;
+  }
+  .settings-page .cotton-candy-theme .field:hover {
+    background-color: #FFFFFF;
+    border-color: #EEEEEE;
+  }
+
+  /* green on black */
+  .settings-page .dark-2-theme .navbar {
+    background-color: #363A7D;
+    border-color: #2F2F5F;
+  }
+
+  .settings-page .dark-2-theme .display-sub-navbar {
+    background-color: #0F2237;
+  }
+
+  .settings-page .dark-2-theme .display-sub-sub-navbar {
+    background-color: #191919;
+  }
+
+  .settings-page .dark-2-theme .display-sub-navbar .text-theme-accent {
+    color: #00CA16;
+  }
+
+  .settings-page .dark-2-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: #444A9B;
+    border-color: #363A7D;
+  }
+  .settings-page .dark-2-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: #2E5D9B;
+    border-color: #264B7E;
+  }
+  .settings-page .dark-2-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: #00BB20;
+    border-color: #009D1D;
+  }
+  .settings-page .dark-2-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: #686868;
+    border-color: #4B4B4B;
+  }
+
+  .settings-page .dark-2-theme .input-group-prepend > .input-group-text {
+    color: #C7C7C7 !important;
+    background-color: #111111 !important;
+    border-color: #AAAAAA !important;
+  }
+
+  .settings-page .dark-2-theme .dropdown-menu {
+    background-color: #111111;
+    border-color: #555555;
+    padding: 2px 0;
+    font-size: .85rem;
+    min-width: 12rem;
+  }
+  .settings-page .dark-2-theme .dropdown-menu .dropdown-item {
+    color: #C7C7C7;
+    padding: 2px 8px;
+  }
+  .settings-page .dark-2-theme .dropdown-menu .dropdown-item:hover {
+    background-color: #555555;
+    color: #C7C7C7;
+  }
+  .settings-page .dark-2-theme .dropdown-menu .dropdown-item:focus {
+    background-color: #111111;
+    color: #C7C7C7;
+  }
+  .settings-page .dark-2-theme .dropdown-menu .dropdown-item.active {
+    background-color: #444A9B;
+    color: #333333;
+  }
+
+  .settings-page .dark-2-theme .field {
+    color: #00CA16;
+  }
+  .settings-page .dark-2-theme .field:hover {
+    background-color: #111111;
+    border-color: #555555;
+  }
+
+  /* Dark Blue */
+  .settings-page .dark-3-theme .navbar {
+    background-color: #23837b;
+    border-color: #1B655F;
+  }
+
+  .settings-page .dark-3-theme .navbar-dark li.active a {
+    color: #FFFFFF;
+    background-color: #1B655F !important;
+  }
+
+  .settings-page .dark-3-theme .display-sub-navbar {
+    background-color: #154369;
+  }
+
+  .settings-page .dark-3-theme .display-sub-sub-navbar {
+    background-color: #460C3A;
+  }
+  .settings-page .dark-3-theme .display-sub-navbar .text-theme-accent{
+    color: #A6A8E2;
+  }
+
+  .settings-page .dark-3-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: #2AA198;
+    border-color: #23837b;
+  }
+  .settings-page .dark-3-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: #268BD2;
+    border-color: #1F76B4;
+  }
+  .settings-page .dark-3-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: #FF6E67;
+    border-color: #D75F59;
+  }
+  .settings-page .dark-3-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: #D33682;
+    border-color: #B42C72;
+  }
+
+  .settings-page .dark-3-theme .input-group-prepend > .input-group-text {
+    color: #ADC1C3 !important;
+    background-color: #002833 !important;
+    border-color: #AAAAAA !important;
+  }
+
+  .settings-page .dark-3-theme .dropdown-menu {
+    background-color: #002833;
+    border-color: #555555;
+    padding: 2px 0;
+    font-size: .85rem;
+    min-width: 12rem;
+  }
+  .settings-page .dark-3-theme .dropdown-menu .dropdown-item {
+    color: #ADC1C3;
+    padding: 2px 8px;
+  }
+  .settings-page .dark-3-theme .dropdown-menu .dropdown-item:hover {
+    background-color: #555555;
+    color: #ADC1C3;
+  }
+  .settings-page .dark-3-theme .dropdown-menu .dropdown-item:focus {
+    background-color: #002833;
+    color: #ADC1C3;
+  }
+  .settings-page .dark-3-theme .dropdown-menu .dropdown-item.active {
+    background-color: #2AA198;
+    color: #333333;
+  }
+
+  .settings-page .dark-3-theme .field {
+    color: #A6A8E2;
+  }
+  .settings-page .dark-3-theme .field:hover {
+    background-color: #002833;
+    border-color: #555555;
+  }
+
+  /* Custom */
+  .settings-page .custom-theme .theme-display {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-box-shadow: 0 0 16px -2px black;
+    -moz-box-shadow: 0 0 16px -2px black;
+    box-shadow: 0 0 16px -2px black;
+  }
+
+  .settings-page .custom-theme .navbar {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-darker);
+  }
+
+  .settings-page .custom-theme .display-sub-navbar {
+    background-color: var(--color-secondary-lightest);
+  }
+
+  .settings-page .custom-theme .display-sub-sub-navbar {
+    border-radius: 0;
+    height: 46px;
+    background-color: var(--color-quaternary-lightest);
+    -webkit-box-shadow: 0 0 16px -2px black;
+    -moz-box-shadow: 0 0 16px -2px black;
+    box-shadow: 0 0 16px -2px black;
+  }
+
+  .settings-page .custom-theme .display-sub-navbar .btn-theme-primary-display {
+    color: #FFFFFF;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-dark);
+  }
+  .settings-page .custom-theme .display-sub-navbar .btn-theme-secondary-display {
+    color: #FFFFFF;
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary-dark);
+  }
+  .settings-page .custom-theme .display-sub-navbar .btn-theme-tertiary-display {
+    color: #FFFFFF;
+    background-color: var(--color-tertiary);
+    border-color: var(--color-tertiary-dark);
+  }
+  .settings-page .custom-theme .display-sub-navbar .btn-theme-quaternary-display {
+    color: #FFFFFF;
+    background-color: var(--color-quaternary);
+    border-color: var(--color-quaternary-dark);
+  }
+
+  .settings-page .custom-theme .dropdown-menu {
+    color: var(--color-foreground);
+    background-color: var(--color-background, #FFFFFF);
+    border-color: var(--color-gray-light);
+  }
+
+  .settings-page .custom-theme .field {
+    color: var(--color-foreground-accent);
+  }
+  .settings-page .custom-theme .field:hover {
+    z-index: 4;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-light);
+  }
+
+  .settings-page .custom-theme .session-detail-ts {
+    color: var(--color-foreground-accent);
+    padding: 0 4px;
+  }
+  .settings-page .custom-theme .sessionsrc > pre {
+    color: var(--color-src, #CA0404);
+    padding: 2px 4px;
+  }
+  .settings-page .custom-theme .sessiondst > pre {
+    color: var(--color-dst, #0000FF);
+    padding: 2px 4px;
+  }
+</style>

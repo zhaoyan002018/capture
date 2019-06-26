@@ -1,0 +1,98 @@
+   http:
+	http.method
+	http.statuscode
+	host.http
+	http.user-agent
+	ip.xff
+	http.hasheader.src
+	http.version.src
+	http.hasheader.dst
+    http.version.dst
+	http.md5
+	http.sha256
+	http.uri.key
+	http.cookie.key
+	http.user
+	http.authtype
+	http.bodymagic
+   
+   dns:
+	dhcp.type
+	dhcp.host
+	dhcp.id
+    dhcp.mac
+    dhcp.oui
+    
+    irc:
+	irc.nick
+	irc.channel
+    
+    krb5：
+	krb5.realm
+	krb5.cname
+	krb5.sname
+    
+    ldap:
+	ldap.bindname
+	ldap.authtype
+    
+    mysql:
+	mysql.user
+	mysql.ver
+    
+    oralcle
+	oracle.user
+	oracle.host
+	oracle.service
+    
+    postgresql
+	postgresql.user
+	postgresql.db
+	postgresql.app
+    
+    
+    quic
+	host.quic
+    quic.user-agent
+	quic.version
+    
+    radius:
+	radius.user
+	radius.mac
+    radius.endpoint-ip
+    radius.framed-ip
+    
+    smb:
+	smb.user
+	host.smb
+	smb.domain
+	smb.share
+	smb.fn
+	smb.os
+	smb.ver
+    
+    ssh:
+    ssh.key
+	ssh.ver
+    
+    tls:
+	tls.version
+	tls.cipher
+    tls.sessionid.src
+    tls.sessionid.dst
+	tls.ja3
+    tls.ja3comment
+    
+    email
+	host.email
+	email.has-header
+	email.subject
+	email.src
+    email.dst
+    email.x-mailer
+    email.message-id
+    email.mime-version
+    email.content-type
+    email.fn
+    email.md5
+    email.bodymagic

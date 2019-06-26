@@ -1,0 +1,265 @@
+ //覆盖一些element-ui样式
+
+ .el-breadcrumb__inner, .el-breadcrumb__inner a{
+  font-weight: 400!important;
+}
+
+ .el-upload {
+   input[type="file"] {
+     display: none !important;
+   }
+ }
+
+ .el-upload__input {
+   display: none;
+ }
+
+ .cell {
+   .el-tag {
+     margin-right: 0px;
+   }
+ }
+
+ .small-padding {
+   .cell {
+     padding-left: 5px;
+     padding-right: 5px;
+   }
+ }
+
+ .fixed-width{
+  .el-button--mini{
+    padding: 7px 10px;
+    width: 60px;
+  }
+ }
+
+ .status-col {
+   .cell {
+     padding: 0 10px;
+     text-align: center;
+     .el-tag {
+       margin-right: 0px;
+     }
+   }
+ }
+
+ //暂时性解决dialog 问题 https://github.com/ElemeFE/element/issues/2461
+ .el-dialog {
+   transform: none;
+   left: 0;
+   position: relative;
+   margin: 0 auto;
+ }
+
+ //文章页textarea修改样式
+ .article-textarea {
+   textarea {
+     padding-right: 40px;
+     resize: none;
+     border: none;
+     border-radius: 0px;
+     border-bottom: 1px solid #bfcbd9;
+   }
+ }
+
+ //element ui upload
+ .upload-container {
+   position: relative;
+   top: 59px;
+   left: 59px;
+   width: calc(100% - 120px);
+     ul {
+       border: 1px solid #CCCCCC !important;
+       margin-top: 10px !important;
+       padding: 5px !important;
+     }
+ }
+
+//dropdown
+ .el-dropdown-menu{
+  a{
+    display: block
+  }
+}
+
+ //改变地图组件中的按钮样式
+ .inline-map{
+   .el-button.el-tooltip.el-button--default{
+     padding: 1px 5px !important;
+     width: 26px !important;
+     height: 22px !important;
+   }
+ }
+//el-select
+ .el-select{
+   .el-input.el-input--mini.el-input--suffix{
+     width: 120px;
+     .el-input__inner{
+       height: 31px;
+       border-radius: 1px;
+     }
+   }
+ }
+ // 去掉分页组件中按钮和li之间的间距
+.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li{
+  margin: 0 !important;
+}
+.el-pagination{
+  display: inline-block;
+}
+
+//更改Time组建中的下拉列表
+ .time-form{
+   .el-input__inner{
+     height: 31px;
+     width: 130px;
+   }
+   .el-select__caret.el-input__icon.el-icon-arrow-up{
+     line-height:31px;
+   }
+   .timeInterval{
+     .el-input__inner{
+       width: 80px;
+     }
+   }
+ }
+ //用户组件中的弹出框
+ //.users-content{
+   .Dialog{
+     .el-dialog{
+       margin-top: 15vh !important;
+       width: 500px;
+       height: 514px;
+       padding: 10px 15px;
+     }
+     .el-dialog__header{
+       padding-left: 0 !important;
+     }
+   }
+   // 上传组件中的对话框
+   .upload{
+     .el-dialog{
+       width: 300px !important;
+       .el-button+.el-button{
+         margin-left: 0px;
+       }
+     }
+   }
+ //}
+ #cron{
+   .el-dialog{
+     width: 556px !important;
+     height: 600px !important;
+   }
+ }
+.settings-page{
+  .el-menu{
+    border-color: transparent !important;
+    .el-menu-item{
+      font-size: 16px;
+      padding: 9px 54px !important;
+      div{
+        line-height: 36px;
+      }
+    }
+    .active{
+      color: #fff !important;
+      div{
+        background: var(--color-primary-dark);
+        i{
+          color: #fff !important;
+        }
+      }
+    }
+  }
+  #general,#password{
+    .el-form-item__label{
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+}
+// 路由配置页面的卡片,去除里面的搜索框,并给卡片添加margin-top
+ .routing-setting{
+   .el-tabs.el-tabs--top.el-tabs--border-card{
+     position: absolute;
+     top: 57px;
+     width: calc(100% - 10px);
+   }
+   .filter-container.borders> div:last-child{
+     display: none !important;
+   }
+ }
+
+ #imageText{
+   .el-form-item{
+     margin-bottom: 0;
+   }
+   .el-col-8{
+     height: 100%;
+     border: 1px dotted #DCDFE6;
+     position: relative;
+   }
+   //.el-input__inner{
+   //  width: 60%;
+   //}
+   .el-upload-list--picture .el-upload-list__item-thumbnail{
+     width: 120px !important;
+     height: 36px !important;
+     top: 14px;
+   }
+ }
+ #dpsTable{
+   .el-table {
+     p{
+       margin-bottom: 0!important;
+     }
+   }
+   .el-table .cell{
+     line-height: 21px !important;
+   }
+   .el-table th div{
+     line-height: 0;
+   }
+   .el-input.is-disabled .el-input__inner{
+     border: transparent;
+     background: transparent;
+     cursor: context-menu;
+     color: #606066;
+   }
+   .el-tabs__content{
+     height: 160px;
+     overflow: hidden auto !important;
+   }
+   .radio-button{
+     .el-radio-button__inner{
+       padding: 7px 6px;
+     }
+     .el-form-item__content{
+       margin-left: 0 !important;
+     }
+   }
+   .el-input__inner{
+     width: 97%!important;
+   }
+ }
+
+ #upload{
+   .el-table--border, .el-table--group{
+     //border: 1px dotted #ccc !important;
+     //border-top: transparent !important;
+   }
+   .el-table td, .el-table th{
+     border: 1px dotted #ccc !important;
+     border-top: transparent !important;
+     padding: 5px 0 !important;
+   }
+   .el-table th{
+     background: #eaeaef;
+   }
+   .el-table td .el-input__inner {
+     height: 28px !important;
+     line-height: 28px !important;
+   }
+ }

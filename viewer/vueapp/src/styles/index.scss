@@ -1,0 +1,47 @@
+@import './element-ui.scss';
+@import './map.scss';
+
+*{
+  margin:0;
+  padding:0;
+  list-style-type:none;
+  text-decoration: none;
+  outline:none !important;
+}
+.search_model{
+  position: fixed;
+  width: calc(100% - 36px);
+  z-index: 5;
+  top: 36px;
+  border: none;
+  background-color: var(--color-secondary-lightest);
+
+  -webkit-box-shadow: 0 0 16px -2px black;
+  -moz-box-shadow: 0 0 16px -2px black;
+  box-shadow: 0 0 16px -2px black;
+}
+//控制系统设置、事件配置、网络配置的container样式
+.app-container {
+  margin-top: 12px;
+  padding: 0 5px;
+}
+.app-main {
+  .el-scrollbar__wrap {
+    overflow-x: hidden;
+    .el-scrollbar__view {
+      height: 100%;
+    }
+  }
+}
+
+// 添加按钮的全局样式，点击时外框线不显示
+.outline{
+  cursor: pointer;
+  outline:none !important;
+}
+
+.ellipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

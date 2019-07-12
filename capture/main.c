@@ -1,4 +1,4 @@
-﻿/* main.c  -- Initialization of components
+﻿/* main.c  -- Initialization of components 
  *
  * Copyright 2012-2017 AOL Inc. All rights reserved.
  *
@@ -149,9 +149,9 @@ void parse_args(int argc, char **argv)
     extern char *pcre_version(void);
     extern const char *MMDB_lib_version(void);
 
-    context = g_option_context_new ("- capture");
-    g_option_context_add_main_entries (context, entries, NULL);
-    if (!g_option_context_parse (context, &argc, &argv, &error))
+    context = g_option_context_new ("- capture");	//建立新的GOptionContext
+    g_option_context_add_main_entries (context, entries, NULL); //汇入所有支援的command line参数资讯
+    if (!g_option_context_parse (context, &argc, &argv, &error))//解析所带入的command line参数
     {
         g_print ("option parsing failed: %s\n", error->message);
         exit (1);
@@ -282,7 +282,7 @@ LOCAL gboolean moloch_free_later_check (gpointer UNUSED(user_data))
 /******************************************************************************/
 LOCAL void moloch_free_later_init()
 {
-    g_timeout_add_seconds(1, moloch_free_later_check, 0);
+    g_timeout_add_seconds(1, moloch_free_later_check, 0);//每秒进行一次check
 }
 
 /******************************************************************************/
@@ -806,7 +806,7 @@ int main(int argc, char **argv)
 
 
     moloch_free_later_init();
-    moloch_hex_init();
+    moloch_hex_init();//db初始化oui file方式时使用
     moloch_config_init();
 	/*威胁检测初始化*/
 	/*
@@ -819,14 +819,14 @@ int main(int argc, char **argv)
 
 
     moloch_interface_init();/*新增网卡初始化*/
-    moloch_writers_init();
-    moloch_readers_init();
-    moloch_plugins_init();
-    moloch_plugins_load(config.rootPlugins);
-    if (config.pcapReadOffline)
+    moloch_writers_init();//数据写入模式初始化
+    moloch_readers_init();//
+    moloch_plugins_init();//plugins hash初始化
+    moloch_plugins_load(config.rootPlugins);//在plugins目录下查找rootPlugins对应的文件
+    if (config.pcapReadOffline)//如果，使用读取包的方式为从libpcap文件中读取。
         moloch_readers_set("libpcap-file");
     else
-        moloch_readers_set(NULL);
+        moloch_readers_set(NULL);//设置抓包方式
     if (!config.pcapReadOffline) {
         moloch_drop_privileges();
         config.copyPcap = 1;
@@ -843,7 +843,7 @@ int main(int argc, char **argv)
     moloch_session_init();
     moloch_plugins_load(config.plugins);
     moloch_rules_init();
-    g_timeout_add(1, moloch_ready_gfunc, 0);
+    g_timeout_add(1, moloch_ready_gfunc, 0);//定时器，读写方式strat
 
     g_main_loop_run(mainLoop);
 

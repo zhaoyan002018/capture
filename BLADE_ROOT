@@ -69,6 +69,7 @@ cc_config(
 	'/home/dps/thirdparty/curl-7.61.1/include',
 	'/usr/include/mysql',
 	'/usr/local/include',
+	'/home/dps/thirdparty//zlog-latest-stable/src',
 ],
     cflags = ['-std=gnu99'],
     cppflags = ['-std=gnu99'],

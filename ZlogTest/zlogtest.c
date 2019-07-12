@@ -25,6 +25,15 @@
 	}\
 }while(0);
 
+typedef enum {
+	DEBUG,
+	INFO,
+	NOTICE,
+	WARN,
+	ERROR,
+	FATAL,
+}rule_level;
+
 static gint level=1;
 
 static GOptionEntry entries[] = 

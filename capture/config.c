@@ -1,5 +1,5 @@
 ﻿/******************************************************************************/
-/* config.c  -- Functions dealing with the config file
+/* config.c  -- Functions dealing with the config file 
  *
  * Copyright 2012-2017 AOL Inc. All rights reserved.
  *
@@ -169,6 +169,9 @@ gchar *moloch_config_str(GKeyFile *keyfile, char *key, char *d)
 }
 
 /******************************************************************************/
+/*
+	从配置文件中获取key对应的字符串数组
+*/
 gchar **moloch_config_raw_str_list(GKeyFile *keyfile, char *key, char *d)
 {
     char   *hvalue;

@@ -234,7 +234,8 @@ unsigned char *moloch_http_send_sync(void *serverV, const char *method, const ch
                 struct timeval now;
                 gettimeofday(&now, NULL);
                 server->snames[server->syncRequest.namePos].allowedAtSeconds = now.tv_sec + 30;
-                LOG("Retry %s error '%s'", server->syncRequest.url, curl_easy_strerror(res));
+                //LOG("Retry %s error '%s'", server->syncRequest.url, curl_easy_strerror(res));
+				printf("hello wolrd~\n");
                 server->syncRequest.retries--;
                 continue;
             }
@@ -357,7 +358,7 @@ LOCAL void moloch_http_curlm_check_multi_info(MolochHttpServer_t *server)
                 curl_easy_getinfo(easy, CURLINFO_CONNECT_TIME, &connectTime);
                 curl_easy_getinfo(easy, CURLINFO_SIZE_UPLOAD, &uploadSize);
                 curl_easy_getinfo(easy, CURLINFO_SIZE_DOWNLOAD, &downloadSize);
-
+				
                 LOG("%d/%d ASYNC %ld %s %.0lf/%.0lf %.0lfms %.0lfms",
                    request->server->outstanding,
                    request->server->connections,
@@ -969,9 +970,9 @@ void moloch_http_init()
     z_strm.zalloc = Z_NULL;
     z_strm.zfree  = Z_NULL;
     z_strm.opaque = Z_NULL;
-    deflateInit(&z_strm, Z_DEFAULT_COMPRESSION);
-
-    curl_global_init(CURL_GLOBAL_SSL);
+    deflateInit(&z_strm, Z_DEFAULT_COMPRESSION);//ѹ����ʼ���ڲ���״̬��ѹ���ȼ�Ϊ6
+	               
+    curl_global_init(CURL_GLOBAL_SSL);//����libcurl�����еĻ���
 
     HASH_INIT(h_, connections, moloch_session_hash, moloch_http_conn_cmp);
     DLL_INIT(rqt_, &requests);

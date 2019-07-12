@@ -1,6 +1,29 @@
 Blade(info): ccache found
 Blade(info): loading BUILDs...
 Blade(warning): //capture:capture : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:dhcp : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:http : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:irc : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:krb5 : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:ldap : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:misc : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:mysql : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:oracle : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:postgresql : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:quic : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:radius : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:smb : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:smtp : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:socks : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:ssh : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:tds : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/parsers:tls : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/plugins:netflow : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/plugins:scrubspi : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/plugins:suricata : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/plugins:tagger : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/plugins:wise : warning='no' is only allowed for code in thirdparty.
+Blade(warning): //capture/plugins:writer-s3 : warning='no' is only allowed for code in thirdparty.
 Blade(info): loading done.
 Blade(info): analyzing dependency graph...
 Blade(info): analyzing done.
@@ -13,4 +36,4 @@ Blade(warning): Unsupported C/C++ flags: -Werror=format-nonliteral
 Blade(info): generating done.
 Blade(info): tunes the parallel jobs number(-j N) to be 2
 Blade(info): success
-Blade(info): cost time is 0:00:02s
+Blade(info): cost time is 0:00:09s

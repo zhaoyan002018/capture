@@ -832,8 +832,8 @@ int main(int argc, char **argv)
         config.copyPcap = 1;
         moloch_mlockall_init();
     }
-    moloch_field_init();
-    moloch_http_init();
+    moloch_field_init();//es字段初始化
+    moloch_http_init(); //建立http客户端
     moloch_db_init();
     moloch_packet_init();
     moloch_config_load_local_ips();

@@ -965,16 +965,16 @@ void *moloch_http_create_server(const char *hostnames, int maxConns, int maxOuts
     return server;
 }
 /******************************************************************************/
-void moloch_http_init()
+void moloch_http_init()//  用于和es进行通讯
 {
     z_strm.zalloc = Z_NULL;
     z_strm.zfree  = Z_NULL;
     z_strm.opaque = Z_NULL;
-    deflateInit(&z_strm, Z_DEFAULT_COMPRESSION);//ѹ����ʼ���ڲ���״̬��ѹ���ȼ�Ϊ6
+    deflateInit(&z_strm, Z_DEFAULT_COMPRESSION);
 	               
-    curl_global_init(CURL_GLOBAL_SSL);//����libcurl�����еĻ���
+    curl_global_init(CURL_GLOBAL_SSL);//libcurl环境初始化
 
-    HASH_INIT(h_, connections, moloch_session_hash, moloch_http_conn_cmp);
+    HASH_INIT(h_, connections, moloch_session_hash, moloch_http_conn_cmp);//同数据库连接池
     DLL_INIT(rqt_, &requests);
 }
 /******************************************************************************/
